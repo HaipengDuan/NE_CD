@@ -13,6 +13,7 @@ import random
 from itertools import product, permutations
 from scipy.io import loadmat
 from scipy.sparse import issparse
+import networkx as nx
 
 
 class Graph(defaultdict):

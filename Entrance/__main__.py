@@ -10,7 +10,9 @@ import random
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
 from DeepWalk import graph
 from DeepWalk import walks as serialized_walks
+from CommunityDetection import NCut
 from gensim.models import Word2Vec
+import matplotlib.pyplot as plt
 
 
 def process(args):
@@ -35,6 +37,10 @@ def process(args):
     print("Data size (walks*length): {}".format(data_size))
 
     # 为了便于研究，直接将游走序列写入磁盘。
+    # plt.style.use('ggplot')
+    # fig, (ax0, ax1) = plt.subplots(ncols=2)
+    # ax0.scatter()
+
     print("Walking...")
     walks_filebase = args.output + ".walks"
     walk_files = serialized_walks.write_walks_to_disk(G, walks_filebase, num_paths=args.number_walks,
@@ -48,6 +54,8 @@ def process(args):
                      workers=args.workers)
 
     model.wv.save_word2vec_format(args.output)
+    Lables = NCut.build_W_D_L(args.output, 3)
+
 
 
 def main():

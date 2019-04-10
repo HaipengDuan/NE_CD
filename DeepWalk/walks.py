@@ -108,7 +108,7 @@ def write_walks_to_disk(G, filebase, num_paths, path_length, alpha=0, rand=rando
     print("num_paths is:", num_paths)
     print([str(x) for x in list(range(num_paths))])
     print("file_lists:", files_list)
-    print(G)
+    # print(G)
     expected_size = len(G)
     args_list = []
     files = []
