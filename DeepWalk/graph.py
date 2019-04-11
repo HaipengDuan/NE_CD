@@ -14,6 +14,7 @@ from itertools import product, permutations
 from scipy.io import loadmat
 from scipy.sparse import issparse
 import networkx as nx
+import matplotlib.pyplot as plt
 
 
 class Graph(defaultdict):
@@ -344,6 +345,7 @@ def from_adjlist(adjlist):
 
     for row in adjlist:
         node = row[0]
+
         neighbors = row[1:]
         G[node] = list(sorted(set(neighbors)))
 
@@ -355,7 +357,14 @@ def from_adjlist_unchecked(adjlist):
 
     for row in adjlist:
         node = row[0]
+        # g_see = nx.Graph
+        # g_see.add_node(node)
         neighbors = row[1:]
+        # for i in range(len(neighbors)):
+        #     g_see.add_edge(node, neighbors[i])
+        # nx.draw(g_see)
+        # plt.savefig("原始输入图")
+        # plt.show()
         G[node] = neighbors
 
     return G

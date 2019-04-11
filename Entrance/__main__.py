@@ -12,7 +12,9 @@ from DeepWalk import graph
 from DeepWalk import walks as serialized_walks
 from CommunityDetection import NCut
 from gensim.models import Word2Vec
+import networkx as nx
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 
 
 def process(args):
@@ -40,6 +42,12 @@ def process(args):
     # plt.style.use('ggplot')
     # fig, (ax0, ax1) = plt.subplots(ncols=2)
     # ax0.scatter()
+    g_see = nx.read_adjlist("../example_graphs/karate.adjlist", nodetype=int)
+    # label = dict((i, i) for i in G.nodes())
+    # nx.draw_networkx_labels(g_see, pos=nx.spring_layout(g_see), labels=label)
+    nx.draw(g_see, pos=nx.spring_layout(g_see), with_labels=True)
+    plt.savefig("原始数据图.png")
+    plt.show()
 
     print("Walking...")
     walks_filebase = args.output + ".walks"
@@ -54,8 +62,12 @@ def process(args):
                      workers=args.workers)
 
     model.wv.save_word2vec_format(args.output)
-    Lables = NCut.build_W_D_L(args.output, 3)
+    labels = NCut.build_W_D_L(G, args.output, 3)
+    # labelss = labels.labels_
+    # plt.scatter(G[0], G[0], c=labels)
+    # print(labelss)
 
+    plt.show()
 
 
 def main():
