@@ -5,12 +5,11 @@
 """
 # -*-coding:utf-8-#-
 import numpy as np
-import math
-from DeepWalk import graph
 from numpy import linalg as LA
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import normalize
 from scipy.spatial.distance import pdist
+
 
 def sort_output(file):
         """
@@ -40,6 +39,7 @@ def build_W_D_L(G, file, k):
         """
         np_node = sort_output(file)
         # print(np_node)
+        print("Cutting...")
         w = np.zeros((len(np_node), len(np_node)))
         for i in range(len(np_node)):
                 # print(i)
@@ -50,34 +50,48 @@ def build_W_D_L(G, file, k):
                         # print(np_node[j, 1:])
                         w[i, j] = 1 - pdist(stemp, 'cosine')
                         w[j, i] = w[i, j]
+                        # if i != j:
+                        #         w[i, j] = 1 - pdist(stemp, 'cosine')
+                        #         w[j, i] = w[i, j]
+                        # else:
+                        #         w[i, j] = 0
         # print(w[11])
-        # print(w)
-
-        # list_d = []
-        # for i in range(len(G)):
-        #         list_d.append(len(G[i+1]))
-        # s = np.array(list_d)
-        s = np.sum(w, axis=1)
-
-        print(s)
-        s1 = np.power(s, -0.5)
-        print(s1)
-        # for i in range(len(np_node)):
-        #         d[i, i] = s[i]
-        d = np.diag(s1)
-        print(d)
         print(w)
+
+        list_d = []
+        for i in range(len(G)):
+                list_d.append(len(G[i+1]))
+        s = np.array(list_d)
+        # print(s)
+
+        d = np.diag(np.power(s, -0.5))
+        # d = np.diag(np.power(np.sum(w, axis=1), -0.5))
+        print(d)
+        # print(w)
         l = np.dot(np.dot(d, (d - w)), d)
-
+        # l = np.eye(len(G)) - np.dot(np.dot(d, w), d)
+        # print(l)
         eigvals, eigvecs = LA.eig(l)
-
+        # print(eigvals)
         indices = np.argsort(eigvals)[:k]
 
         k_small_eigenvectors = normalize(eigvecs[:, indices])
-        print(k_small_eigenvectors)
+        # print(k_small_eigenvectors)
 
-        label = KMeans(n_clusters=k).fit_predict(k_small_eigenvectors)
-        print(label)
+        labels = [str(i) for i in KMeans(n_clusters=k).fit_predict(k_small_eigenvectors)]
+        print(labels)
+        for i in range(len(labels)):
+                # print(labels[i])
+                if labels[i] == '0':
+                        labels[i] = 'r'
+                elif labels[i] == '1':
+                        labels[i] = 'b'
+                elif labels[i] == '2':
+                        labels[i] = 'g'
+                elif labels[i] == '3':
+                        labels[i] = 'y'
+        print(labels)
+        return labels
 
 
 

@@ -6,11 +6,13 @@
 #-*-coding:utf-8-#-
 
 import sys
+import os
 import random
 from argparse import ArgumentParser, FileType, ArgumentDefaultsHelpFormatter
 from DeepWalk import graph
 from DeepWalk import walks as serialized_walks
 from CommunityDetection import NCut
+from CommunityDetection import myKMeans
 from gensim.models import Word2Vec
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -39,13 +41,16 @@ def process(args):
     print("Data size (walks*length): {}".format(data_size))
 
     # 为了便于研究，直接将游走序列写入磁盘。
-    # plt.style.use('ggplot')
-    # fig, (ax0, ax1) = plt.subplots(ncols=2)
-    # ax0.scatter()
-    g_see = nx.read_adjlist("../example_graphs/karate.adjlist", nodetype=int)
-    # label = dict((i, i) for i in G.nodes())
+    file = "../example_graphs/karate.adjlist"
+    # g_see = nx.read_adjlist("../example_graphs/karate.adjlist", nodetype=int)
     # nx.draw_networkx_labels(g_see, pos=nx.spring_layout(g_see), labels=label)
-    nx.draw(g_see, pos=nx.spring_layout(g_see), with_labels=True)
+    if os.path.isfile("karategraph_show.gpickle") is False:
+        graph.biuld_nx_g(file)
+    g_see = nx.read_gpickle("karategraph_show.gpickle")
+    pos = nx.get_node_attributes(g_see, 'pos')
+    plt.title("Karate", fontsize=20)
+    nx.draw(g_see, pos=pos, with_labels=True)
+    # nx.draw(g_see, with_labels=True)
     plt.savefig("原始数据图.png")
     plt.show()
 
@@ -62,11 +67,25 @@ def process(args):
                      workers=args.workers)
 
     model.wv.save_word2vec_format(args.output)
-    labels = NCut.build_W_D_L(G, args.output, 3)
+
+    pos = nx.get_node_attributes(g_see, 'pos')
+    labels_ncut = NCut.build_W_D_L(G, args.output, 4)
+    plt.title("Karate_NCut", fontsize=20)
+    nx.draw(g_see, pos=pos, with_labels=True, nodelist=[x for x in range(1, len(G) + 1)], node_color=labels_ncut)
+    plt.savefig("NCut.png")
+    plt.show()
+    labels_kmeans = myKMeans.node_kmeans(args.output, 4)
+    plt.title("Karate_KMeans", fontsize=20)
+    nx.draw(g_see, pos=pos, with_labels=True, nodelist=[x for x in range(1, len(G) + 1)], node_color=labels_kmeans)
+    plt.savefig("KMeans.png")
+    plt.show()
     # labelss = labels.labels_
     # plt.scatter(G[0], G[0], c=labels)
-    # print(labelss)
-
+    # print(labels)
+    # nx.draw_networkx_nodes(g_see, pos=nx.spring_layout(g_see), node_color=labels, with_labels=True)
+    # nx.draw_networkx_labels(g_see, pos=nx.spring_layout(g_see))
+    # nx.draw(g_see, pos=nx.spring_layout(g_see), node_size=200, with_labels=True, node_color=labels)
+    # nx.draw_networkx_edges(g_see, pos=nx.spring_layout(g_see), with_labels=True)
     plt.show()
 
 
@@ -103,7 +122,7 @@ def main():
     parser.add_argument('--output', required=True,
                         help='Output representation file')
 
-    # 每个节点要学习的潜在维数
+    # 每个节点要学习的潜在维数,默认64
     parser.add_argument('--representation-size', default=64, type=int,
                         help='Number of latent dimensions to learn for each node.')
 

@@ -14,6 +14,8 @@ from itertools import product, permutations
 from scipy.io import loadmat
 from scipy.sparse import issparse
 import networkx as nx
+import numpy as np
+import time
 import matplotlib.pyplot as plt
 
 
@@ -187,6 +189,25 @@ class Graph(defaultdict):
 
 
 # TODO add build_walks in here
+
+
+def biuld_nx_g(file):
+    G = nx.Graph()
+    for line in open(file):
+        vlist = line.strip().split()
+        # print(vlist)
+        u = int(vlist[0])
+        G.add_node(u)
+        # print(u)
+        G.add_edges_from([(u, int(v)) for v in vlist[1:]])
+        # print(G)
+
+        np.argsort(nx.nodes(G))
+        pos = nx.spring_layout(G)
+        nx.set_node_attributes(G, pos, 'pos')
+        nx.write_gpickle(G, "karategraph_show.gpickle")
+        # time.sleep(1)
+    return G
 
 
 def build_deepwalk_corpus(G, num_paths, path_length, alpha=0,

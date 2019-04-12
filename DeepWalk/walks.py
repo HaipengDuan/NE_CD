@@ -108,7 +108,7 @@ def write_walks_to_disk(G, filebase, num_paths, path_length, alpha=0, rand=rando
     print("num_paths is:", num_paths)
     print([str(x) for x in list(range(num_paths))])
     print("file_lists:", files_list)
-    print(G)
+    # print(G)
     expected_size = len(G)
     args_list = []
     files = []
@@ -119,7 +119,7 @@ def write_walks_to_disk(G, filebase, num_paths, path_length, alpha=0, rand=rando
     else:
         paths_per_worker = [len(list(filter(lambda z: z is not None, [y for y in x])))
                             for x in graph.grouper(int(num_paths / num_workers)+1, range(1, num_paths+1))]
-    print(paths_per_worker)
+    # print(paths_per_worker)
     """
     grouper(arg1,arg2,arg3)
     arg1:int
